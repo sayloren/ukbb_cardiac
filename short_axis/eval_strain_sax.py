@@ -15,6 +15,8 @@
 import os
 import argparse
 import pandas as pd
+import sys
+sys.path.append('/Users/wren/Documents/tcheandjieulab')
 from ukbb_cardiac.common.cardiac_utils import *
 
 

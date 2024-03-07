@@ -19,6 +19,9 @@ import pandas as pd
 import nibabel as nib
 import vtk
 import math
+import sys
+sys.path.append('/Users/wren/Documents/tcheandjieulab')
+
 from ukbb_cardiac.common.cardiac_utils import atrium_pass_quality_control, evaluate_atrial_area_length
 
 
@@ -59,7 +62,7 @@ if __name__ == '__main__':
 
             # Analyse 2 chamber view image
             nim_2ch = nib.load(seg_la_2ch_name)
-            seg_la_2ch = nim_2ch.get_data()
+            seg_la_2ch = nim_2ch.get_fdata()
             T = nim_2ch.header['dim'][4]
 
             # Perform quality control for the segmentation
@@ -96,7 +99,7 @@ if __name__ == '__main__':
 
             # Analyse 4 chamber view image
             nim_4ch = nib.load(seg_la_4ch_name)
-            seg_la_4ch = nim_4ch.get_data()
+            seg_la_4ch = nim_4ch.get_fdata()
 
             # Perform quality control for the segmentation
             if not atrium_pass_quality_control(seg_la_4ch, {'LA': 1, 'RA': 2}):

@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
+import sys
+sys.path.append('/Users/wren/Documents/tcheandjieulab')
 from ukbb_cardiac.common.network import *
 
 

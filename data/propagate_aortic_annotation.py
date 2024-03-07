@@ -19,6 +19,8 @@ import os
 import sys
 import nibabel as nib
 import numpy as np
+sys.path.append('/Users/wren/Documents/tcheandjieulab')
+
 from ukbb_cardiac.common.image_utils import *
 
 

@@ -17,26 +17,30 @@ import time
 import math
 import numpy as np
 import nibabel as nib
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+# import tensorflow as tf
+import sys
+sys.path.append('/Users/wren/Documents/tcheandjieulab')
+
 from ukbb_cardiac.common.image_utils import rescale_intensity
 
 
 """ Deployment parameters """
-FLAGS = tf.app.flags.FLAGS
-tf.app.flags.DEFINE_enum('seq_name', 'sa',
+FLAGS = tf.compat.v1.app.flags.FLAGS
+tf.compat.v1.app.flags.DEFINE_enum('seq_name', 'sa',
                          ['sa', 'la_2ch', 'la_4ch'],
                          'Sequence name.')
-tf.app.flags.DEFINE_string('data_dir', '/vol/bitbucket/wbai/own_work/ukbb_cardiac_demo',
+tf.compat.v1.app.flags.DEFINE_string('data_dir', '/vol/bitbucket/wbai/own_work/ukbb_cardiac_demo',
                            'Path to the data set directory, under which images '
                            'are organised in subdirectories for each subject.')
-tf.app.flags.DEFINE_string('model_path',
+tf.compat.v1.app.flags.DEFINE_string('model_path',
                            '',
                            'Path to the saved trained model.')
-tf.app.flags.DEFINE_boolean('process_seq', True,
+tf.compat.v1.app.flags.DEFINE_boolean('process_seq', True,
                             'Process a time sequence of images.')
-tf.app.flags.DEFINE_boolean('save_seg', True,
+tf.compat.v1.app.flags.DEFINE_boolean('save_seg', True,
                             'Save segmentation.')
-tf.app.flags.DEFINE_boolean('seg4', False,
+tf.compat.v1.app.flags.DEFINE_boolean('seg4', False,
                             'Segment all the 4 chambers in long-axis 4 chamber view. '
                             'This seg4 network is trained using 200 subjects from Application 18545.'
                             'By default, for all the other tasks (ventricular segmentation'
@@ -45,12 +49,29 @@ tf.app.flags.DEFINE_boolean('seg4', False,
 
 
 if __name__ == '__main__':
+
+    gd = tf.MetaGraphDef() 
+    with open('{0}.meta'.format(FLAGS.model_path), "rb") as f: # original
+    # with open(f"{FLAGS.model_path}.meta", "rb") as f:
+        gd.ParseFromString(f.read())
+    for node in gd.graph_def.node:
+        if '_output_shapes' in node.attr:
+            del node.attr['_output_shapes']
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
-
-        # Import the computation graph and restore the variable values
-        saver = tf.train.import_meta_graph('{0}.meta'.format(FLAGS.model_path))
+         # Import the computation graph and restore the variable values
+        #  saver = tf.train.import_meta_graph('{0}.meta'.format(FLAGS.model_path))
+        saver = tf.train.import_meta_graph(gd)
         saver.restore(sess, '{0}'.format(FLAGS.model_path))
+        #  print('Start evaluating on the test set ...')
+
+    # commented out in the original
+    # with tf.Session() as sess:
+    #     sess.run(tf.global_variables_initializer())
+
+    #     # Import the computation graph and restore the variable values
+    #     saver = tf.train.import_meta_graph('{0}.meta'.format(FLAGS.model_path))
+    #     saver.restore(sess, '{0}'.format(FLAGS.model_path))
 
         print('Start deployment on the data set ...')
         start_time = time.time()
@@ -82,7 +103,7 @@ if __name__ == '__main__':
                 # Read the image
                 print('  Reading {} ...'.format(image_name))
                 nim = nib.load(image_name)
-                image = nim.get_data()
+                image = nim.get_fdata()
                 X, Y, Z, T = image.shape
                 orig_image = image
 
@@ -171,7 +192,7 @@ if __name__ == '__main__':
                     # Read the image
                     print('  Reading {} ...'.format(image_name))
                     nim = nib.load(image_name)
-                    image = nim.get_data()
+                    image = nim.get_fdata()
                     X, Y = image.shape[:2]
                     if image.ndim == 2:
                         image = np.expand_dims(image, axis=2)
@@ -219,11 +240,14 @@ if __name__ == '__main__':
                             seg_name = '{0}/seg_{1}_{2}.nii.gz'.format(data_dir, FLAGS.seq_name, fr)
                         nib.save(nim2, seg_name)
 
-        if FLAGS.process_seq:
-            print('Average segmentation time = {:.3f}s per sequence'.format(np.mean(table_time)))
-        else:
-            print('Average segmentation time = {:.3f}s per frame'.format(np.mean(table_time)))
-        process_time = time.time() - start_time
-        print('Including image I/O, CUDA resource allocation, '
-              'it took {:.3f}s for processing {:d} subjects ({:.3f}s per subjects).'.format(
-            process_time, len(processed_list), process_time / len(processed_list)))
+        # commented this out because it caused some errors to pop up for octavia
+        # errors: numpy splicing errors
+                        
+        # if FLAGS.process_seq:
+        #     print('Average segmentation time = {:.3f}s per sequence'.format(np.mean(table_time)))
+        # else:
+        #     print('Average segmentation time = {:.3f}s per frame'.format(np.mean(table_time)))
+        # process_time = time.time() - start_time
+        # print('Including image I/O, CUDA resource allocation, '
+        #       'it took {:.3f}s for processing {:d} subjects ({:.3f}s per subjects).'.format(
+        #     process_time, len(processed_list), process_time / len(processed_list)))

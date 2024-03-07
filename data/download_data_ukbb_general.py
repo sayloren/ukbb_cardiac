@@ -25,16 +25,16 @@ import dateutil.parser
 
 if __name__ == '__main__':
     # Where the data will be downloaded
-    data_root = '/vol/vipdata/data/biobank/cardiac/Application_18545/data_path'
+    data_root = '/Users/wren/Documents/tcheandjieulab/ukbb_cardiac/ukbbdata/'
 
     # Path to the UK Biobank utilities directory
     # The utility programmes can be downloaded at http://biobank.ctsu.ox.ac.uk/crystal/download.cgi
-    util_dir = '/vol/vipdata/data/biobank/cardiac/Application_18545/util_path'
+    util_dir = '/Users/wren/Documents/tcheandjieulab/ukbb_cardiac/util_path'
 
     # The authentication file (application id + password) for downloading the data for a specific
     # UK Biobank application. You will get this file from the UK Biobank website after your
     # application has been approved.
-    ukbkey = '/homes/wbai/ukbkey'
+    ukbkey = '/Users/wren/Documents/tcheandjieulab/ukbb_cardiac/ukbkey'
 
     # The spreadsheet which lists the anonymised IDs of the subjects.
     # You can download a very large spreadsheet from the UK Biobank website, which exceeds 10GB.
