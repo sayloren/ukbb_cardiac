@@ -24,6 +24,9 @@ import math
 import re
 import csv
 import statsmodels.api as sm
+import sys
+sys.path.append('/Users/wren/Documents/tcheandjieulab')
+
 from ukbb_cardiac.data.ukb_field_categories import *
 from ukbb_cardiac.assoc.my_fdr import fdr_threshold
 import seaborn as sns
